@@ -9,15 +9,32 @@ use Illuminate\Support\Facades\Auth;
 
 class ReferenciaController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         $user = Auth::user();
-        $rol = $user->getRoleNames()->first(); // GAF, GOR, etc.
+        $rol = $user->getRoleNames()->first();
 
-        $referencias = Referencia::where('departamento', $rol)->orderByDesc('created_at')->get();
+        $query = Referencia::where('departamento', $rol);
+
+        if ($request->filled('search')) {
+            $query->where(function ($q) use ($request) {
+                $q->where('correlativo', 'like', '%' . $request->search . '%')
+                    ->orWhere('asunto', 'like', '%' . $request->search . '%')
+                    ->orWhere('solicitado_por', 'like', '%' . $request->search . '%')
+                    ->orWhere('autorizado_por', 'like', '%' . $request->search . '%');
+            });
+        }
+
+        if ($request->filled('estado')) {
+            $query->where('estado', $request->estado);
+        }
+
+        $referencias = $query->orderByDesc('created_at')->paginate(10)->appends($request->query());
 
         return view('referencias.index', compact('referencias'));
     }
+
+
 
     public function create()
     {
@@ -56,11 +73,11 @@ class ReferenciaController extends Controller
             'autorizado_por' => $request->autorizado_por,
             'documento' => $rutaDocumento,
             'departamento' => $departamento,
-            'estado' => $request->filled('asunto') && $request->hasFile('documento') ? 'completo' : 'pendiente',
+            'estado' => $request->filled('asunto', 'documento', 'autorizado_por', 'solicitado_por') && $request->hasFile('documento') ? 'completo' : 'pendiente',
             'user_id' => $user->id,
         ]);
 
-        return redirect()->route('referencias.index')->with('success', 'Referencia creada correctamente.');
+        return redirect()->route('referencias.index')->with('success', '✅ REFSIS: La referencia fue registrada exitosamente y está disponible en el sistema.');
     }
 
     public function edit(Referencia $referencia)
@@ -106,13 +123,8 @@ class ReferenciaController extends Controller
         return view('referencias.admin_index', compact('referencias'));
     }
 
-    private function nombreDepartamento(string $sigla): string
+    public function show(Referencia $referencia)
     {
-        return [
-            'DE' => 'Dirección Ejecutiva',
-            'GOR' => 'Gerencia de Operaciones Registrales',
-            'GAF' => 'Gerencia Administrativa y Financiera',
-            'GSEA' => 'Gerencia de Servicios Empresariales y Afiliaciones',
-        ][$sigla] ?? $sigla;
+        return view('referencias.show', compact('referencia'));
     }
 }
