@@ -1,40 +1,102 @@
 @extends('layouts.app')
 
 @section('content')
-    <div class="container">
-        <h2 class="mb-4">Usuarios del sistema</h2>
-        <a href="{{ route('admin.users.create') }}" class="btn btn-primary mb-3">Nuevo Usuario</a>
+    <!-- Phosphor Icons CDN -->
+    <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.0.3/src/css/phosphor.css">
 
-        @if (session('success'))
-            <div class="alert alert-success">{{ session('success') }}</div>
-        @endif
+    <div class="min-h-screen bg-gray-50 py-8 px-4 sm:px-8">
+        <div class="max-w-6xl mx-auto">
+            <!-- Título -->
+            <h2 class="text-3xl font-extrabold text-center text-[#002c5f] mb-8">Usuarios del Sistema</h2>
 
-        <table class="table table-bordered">
-            <thead>
-                <tr>
-                    <th>Nombre</th>
-                    <th>Correo</th>
-                    <th>Rol</th>
-                    <th>Acciones</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach ($users as $user)
-                    <tr>
-                        <td>{{ $user->name }}</td>
-                        <td>{{ $user->email }}</td>
-                        <td>{{ $user->getRoleNames()->first() }}</td>
-                        <td>
-                            <a href="{{ route('admin.users.edit', $user) }}" class="btn btn-sm btn-warning">Editar</a>
-                            <form action="{{ route('admin.users.destroy', $user) }}" method="POST" class="d-inline"
-                                onsubmit="return confirm('¿Seguro de eliminar este usuario?')">
-                                @csrf @method('DELETE')
-                                <button class="btn btn-sm btn-danger">Eliminar</button>
-                            </form>
-                        </td>
-                    </tr>
-                @endforeach
-            </tbody>
-        </table>
+            <!-- Mensaje de éxito -->
+            @if (session('success'))
+                <div class="mb-6 flex items-center justify-center">
+                    <div
+                        class="bg-green-100 border border-green-300 text-green-800 px-6 py-3 rounded-lg shadow w-full max-w-md text-center">
+                        {{ session('success') }}
+                    </div>
+                </div>
+            @endif
+
+            <!-- Botón agregar -->
+            <div class="flex justify-end mb-4">
+                <a href="{{ route('admin.users.create') }}"
+                    class="inline-flex items-center gap-2 px-5 py-3 rounded-full shadow-lg bg-[#007bff] hover:bg-[#005bb5] text-white font-semibold text-base transition duration-200">
+                    <i class="ph ph-plus-circle text-xl"></i>
+                    Nuevo Usuario
+                </a>
+            </div>
+
+            <!-- Tabla -->
+            <div class="overflow-x-auto rounded-xl shadow-lg bg-white">
+                <table class="min-w-full divide-y divide-gray-200 text-sm">
+                    <thead class="bg-[#002c5f] text-white">
+                        <tr>
+                            <th class="px-4 py-4 text-left font-bold uppercase tracking-wide">#</th>
+                            <th class="px-6 py-4 text-left font-bold uppercase tracking-wide">Nombre</th>
+                            <th class="px-6 py-4 text-left font-bold uppercase tracking-wide">Correo</th>
+                            <th class="px-6 py-4 text-left font-bold uppercase tracking-wide">Rol</th>
+                            <th class="px-6 py-4 text-left font-bold uppercase tracking-wide">Departamento</th>
+                            <th class="px-6 py-4 text-left font-bold uppercase tracking-wide">Fecha de Registro</th>
+                            <th class="px-6 py-4 text-center font-bold uppercase tracking-wide">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-100">
+                        @forelse ($users as $index => $user)
+                            <tr class="hover:bg-[#f0f4fa] transition-colors">
+                                <td class="px-4 py-4 text-gray-500 text-center font-semibold">
+                                    {{ $loop->iteration }}
+                                </td>
+                                <td class="px-6 py-4 text-gray-900 font-medium">{{ $user->name }}</td>
+                                <td class="px-6 py-4 text-gray-700">{{ $user->email }}</td>
+                                <td class="px-6 py-4">
+                                    @php
+                                        $role = $user->getRoleNames()->first();
+                                        $roleColors = [
+                                            'Admin' => 'bg-[#007bff] text-white',
+                                            'Usuario' => 'bg-gray-200 text-[#002c5f]',
+                                            'SuperAdmin' => 'bg-red-600 text-white',
+                                        ];
+                                    @endphp
+                                    <span
+                                        class="inline-block px-3 py-1 rounded-full text-xs font-semibold {{ $roleColors[$role] ?? 'bg-gray-100 text-gray-800' }}">
+                                        {{ $role }}
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 text-gray-600 text-sm">
+                                    @php
+                                        $role = $user->getRoleNames()->first();
+                                        $mapaDepartamentos = [
+                                            'DE' => 'Dirección Ejecutiva',
+                                            'GOR' => 'Gerencia de Operaciones Registrales',
+                                            'GAF' => 'Gerencia Administrativa y Financiera',
+                                            'GSEA' => 'Gerencia de Servicios Empresariales y Afiliaciones',
+                                        ];
+                                        $nombreDepto = $mapaDepartamentos[$role] ?? '---';
+                                    @endphp
+                                    {{ $nombreDepto }}
+                                </td>
+                                <td class="px-6 py-4 text-gray-500">{{ $user->created_at->format('d/m/Y') }}</td>
+                                <td class="px-6 py-4 text-center">
+                                    <a href="{{ route('admin.users.edit', $user) }}"
+                                        class="inline-flex items-center justify-center p-2 rounded-full hover:bg-[#e6f0ff] text-[#007bff] focus:outline-none focus:ring-2 focus:ring-[#007bff]"
+                                        title="Editar usuario">
+                                        <i class="ph ph-pencil-simple text-lg"></i>
+                                    </a>
+                                    {{-- No eliminar usuarios por seguridad de relaciones --}}
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="7" class="px-6 py-8 text-center text-gray-400 italic">
+                                    No hay usuarios registrados.
+                                </td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
 @endsection

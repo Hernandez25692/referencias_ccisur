@@ -33,6 +33,6 @@ Route::middleware(['auth', 'SuperAdminOnly'])->prefix('admin')->name('admin.')->
 });
 
 Route::middleware(['auth'])->group(function () {
-    Route::resource('referencias', ReferenciaController::class)->only(['index', 'create', 'store', 'edit', 'update']);
+    Route::resource('referencias', ReferenciaController::class)->only(['index', 'create', 'store', 'edit', 'update', 'show']);
 });
 require __DIR__ . '/auth.php';
