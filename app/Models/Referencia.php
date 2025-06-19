@@ -16,4 +16,14 @@ class Referencia extends Model
         'estado',
         'user_id',
     ];
+
+    public function creadoPor()
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 }

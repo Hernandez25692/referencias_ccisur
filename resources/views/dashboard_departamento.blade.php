@@ -1,8 +1,8 @@
 @extends('layouts.app')
 
 @section('content')
-    <div class="container">
-        <h2 class="text-2xl font-bold mb-4">Dashboard – {{ Auth::user()->getRoleNames()->first() }}</h2>
+    <div class="max-w-7xl mx-auto px-4">
+        <h2 class="text-2xl font-bold mb-6">Dashboard – {{ Auth::user()->getRoleNames()->first() }}</h2>
 
         @php
             $rol = Auth::user()->getRoleNames()->first();
@@ -11,18 +11,18 @@
             $completas = $total - $pendientes;
         @endphp
 
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
-            <div class="bg-white p-4 shadow rounded">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
+            <div class="bg-white p-6 shadow rounded-xl border">
                 <h3 class="text-xl font-semibold text-blue-700">Total</h3>
-                <p class="text-2xl">{{ $total }}</p>
+                <p class="text-3xl font-bold mt-2">{{ $total }}</p>
             </div>
-            <div class="bg-yellow-100 p-4 shadow rounded">
+            <div class="bg-yellow-100 p-6 shadow rounded-xl border border-yellow-200">
                 <h3 class="text-xl font-semibold text-yellow-700">Pendientes</h3>
-                <p class="text-2xl">{{ $pendientes }}</p>
+                <p class="text-3xl font-bold mt-2">{{ $pendientes }}</p>
             </div>
-            <div class="bg-green-100 p-4 shadow rounded">
+            <div class="bg-green-100 p-6 shadow rounded-xl border border-green-200">
                 <h3 class="text-xl font-semibold text-green-700">Completadas</h3>
-                <p class="text-2xl">{{ $completas }}</p>
+                <p class="text-3xl font-bold mt-2">{{ $completas }}</p>
             </div>
         </div>
     </div>

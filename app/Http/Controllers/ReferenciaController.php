@@ -6,6 +6,7 @@ use App\Models\Referencia;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
+
 class ReferenciaController extends Controller
 {
     public function index()
@@ -94,5 +95,24 @@ class ReferenciaController extends Controller
         $referencia->save();
 
         return redirect()->route('referencias.index')->with('success', 'Referencia actualizada.');
+    }
+
+    public function adminIndex()
+    {
+        $referencias = \App\Models\Referencia::with('user')
+            ->orderByDesc('created_at')
+            ->get();
+
+        return view('referencias.admin_index', compact('referencias'));
+    }
+
+    private function nombreDepartamento(string $sigla): string
+    {
+        return [
+            'DE' => 'Dirección Ejecutiva',
+            'GOR' => 'Gerencia de Operaciones Registrales',
+            'GAF' => 'Gerencia Administrativa y Financiera',
+            'GSEA' => 'Gerencia de Servicios Empresariales y Afiliaciones',
+        ][$sigla] ?? $sigla;
     }
 }

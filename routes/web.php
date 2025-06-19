@@ -17,7 +17,12 @@ Route::get('/dashboard', function () {
     }
 })->middleware('auth')->name('dashboard');
 
+// Para la vista de referencias generales por departamento (solo SuperAdmin)
+Route::get('/referencias/admin', [ReferenciaController::class, 'adminIndex'])
+    ->middleware(['auth', 'SuperAdminOnly'])
+    ->name('referencias.admin');
 
+    
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
