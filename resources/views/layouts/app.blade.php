@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,6 +10,7 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 </head>
+
 <body class="bg-[#f8fafc] text-gray-900 font-sans antialiased">
     <header class="bg-white shadow-md fixed top-0 inset-x-0 z-50 border-b border-[#e5e7eb]">
         <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -28,24 +30,24 @@
                     @role('SuperAdmin')
                         <li>
                             <a href="{{ route('admin.users.index') }}"
-                               class="flex items-center gap-2 px-2 py-1 rounded transition hover:text-[#007bff] hover:bg-[#f3f6fa] focus:outline-none focus:ring-2 focus:ring-[#b79a37]"
-                               aria-label="Usuarios">
+                                class="flex items-center gap-2 px-2 py-1 rounded transition hover:text-[#007bff] hover:bg-[#f3f6fa] focus:outline-none focus:ring-2 focus:ring-[#b79a37]"
+                                aria-label="Usuarios">
                                 <i class="ph ph-users-four text-[#b79a37] text-lg"></i>
                                 <span class="text-[#0c1c3c]">Usuarios</span>
                             </a>
                         </li>
                         <li>
                             <a href="{{ route('referencias.admin') }}"
-                               class="flex items-center gap-2 px-2 py-1 rounded transition hover:text-[#007bff] hover:bg-[#f3f6fa] focus:outline-none focus:ring-2 focus:ring-[#b79a37]"
-                               aria-label="Referencias por Departamento">
+                                class="flex items-center gap-2 px-2 py-1 rounded transition hover:text-[#007bff] hover:bg-[#f3f6fa] focus:outline-none focus:ring-2 focus:ring-[#b79a37]"
+                                aria-label="Referencias por Departamento">
                                 <i class="ph ph-list-magnifying-glass text-[#b79a37] text-lg"></i>
                                 <span class="text-[#0c1c3c]">Referencias Por Departamento</span>
                             </a>
                         </li>
                         <li>
                             <a href="{{ route('dashboard') }}"
-                               class="flex items-center gap-2 px-2 py-1 rounded transition hover:text-[#007bff] hover:bg-[#f3f6fa] focus:outline-none focus:ring-2 focus:ring-[#b79a37]"
-                               aria-label="Dashboard">
+                                class="flex items-center gap-2 px-2 py-1 rounded transition hover:text-[#007bff] hover:bg-[#f3f6fa] focus:outline-none focus:ring-2 focus:ring-[#b79a37]"
+                                aria-label="Dashboard">
                                 <i class="ph ph-gauge text-[#b79a37] text-lg"></i>
                                 <span class="text-[#0c1c3c]">Dashboard</span>
                             </a>
@@ -55,72 +57,84 @@
                     @hasanyrole('GAF|GOR|GSEA|DE')
                         <li>
                             <a href="{{ route('referencias.index') }}"
-                               class="flex items-center gap-2 px-2 py-1 rounded transition hover:text-[#007bff] hover:bg-[#f3f6fa] focus:outline-none focus:ring-2 focus:ring-[#b79a37]"
-                               aria-label="Mis Referencias">
+                                class="flex items-center gap-2 px-2 py-1 rounded transition hover:text-[#007bff] hover:bg-[#f3f6fa] focus:outline-none focus:ring-2 focus:ring-[#b79a37]"
+                                aria-label="Mis Referencias">
                                 <i class="ph ph-folder-user text-[#b79a37] text-lg"></i>
                                 <span class="text-[#0c1c3c]">Mis Referencias</span>
                             </a>
                         </li>
                         <li>
                             <a href="{{ route('dashboard') }}"
-                               class="flex items-center gap-2 px-2 py-1 rounded transition hover:text-[#007bff] hover:bg-[#f3f6fa] focus:outline-none focus:ring-2 focus:ring-[#b79a37]"
-                               aria-label="Dashboard">
+                                class="flex items-center gap-2 px-2 py-1 rounded transition hover:text-[#007bff] hover:bg-[#f3f6fa] focus:outline-none focus:ring-2 focus:ring-[#b79a37]"
+                                aria-label="Dashboard">
                                 <i class="ph ph-gauge text-[#b79a37] text-lg"></i>
                                 <span class="text-[#0c1c3c]">Dashboard</span>
                             </a>
                         </li>
                     @endhasanyrole
-                    <li>
-                        <a href="#" class="flex items-center gap-2 px-2 py-1 rounded transition hover:text-[#007bff] hover:bg-[#f3f6fa] focus:outline-none focus:ring-2 focus:ring-[#b79a37]"
-                           aria-label="Ayuda">
-                            <i class="ph ph-question text-[#b79a37] text-lg"></i>
-                            <span class="text-[#0c1c3c]">Ayuda</span>
-                        </a>
-                    </li>
+
                 </ul>
-                <!-- Usuario y Logout -->
+                <!-- Usuario y Logout Mejorado -->
                 <div class="flex items-center space-x-4 text-sm">
-                    <span class="hidden md:inline text-gray-700">
-                        Hola, <span class="font-semibold text-[#007bff]">{{ Auth::user()->name }}</span>
-                    </span>
+                    <div
+                        class="hidden md:flex items-center gap-2 px-3 py-1 rounded-lg bg-[#f3f6fa] shadow-sm">
+                        <i class="ph ph-user-circle text-[#b79a37] text-xl"></i>
+                        <span class="text-gray-800">
+                            <span class="font-semibold text-[#007bff]">{{ Auth::user()->name }}</span>
+                        </span>
+                        <div
+                            class="bg-[#b79a37]/10 text-[#b79a37] px-3 py-1 rounded-full text-xs font-semibold tracking-wide shadow-sm">
+                            {{ strtoupper(Auth::user()->getRoleNames()->first()) }}
+                        </div>
+                    </div>
+
                     <form method="POST" action="{{ route('logout') }}">
                         @csrf
                         <button type="submit"
-                            class="text-red-600 hover:underline transition focus:outline-none focus:ring-2 focus:ring-[#b79a37]">
-                            Salir
+                            class="flex items-center gap-1 px-3 py-1 rounded-lg bg-white text-red-600 hover:bg-[#fbeaea] transition focus:outline-none focus:ring-2 focus:ring-[#b79a37] shadow-sm">
+                            <i class="ph ph-sign-out text-lg"></i>
+                            <span class="hidden sm:inline">Salir</span>
                         </button>
                     </form>
                 </div>
                 <!-- Botón Menú Móvil -->
                 <div class="md:hidden">
-                    <button id="mobileMenuToggle" aria-label="Abrir menú" class="text-[#0c1c3c] focus:outline-none focus:ring-2 focus:ring-[#b79a37]">
+                    <button id="mobileMenuToggle" aria-label="Abrir menú"
+                        class="text-[#0c1c3c] focus:outline-none focus:ring-2 focus:ring-[#b79a37]">
                         <i class="ph ph-list text-2xl"></i>
                     </button>
                 </div>
             </div>
         </nav>
         <!-- Menú Móvil -->
-        <div id="mobileMenu" class="md:hidden fixed top-16 left-0 w-full bg-white border-t border-[#e5e7eb] shadow-lg transition-all duration-300 ease-in-out transform -translate-y-4 opacity-0 pointer-events-none z-40">
+        <div id="mobileMenu"
+            class="md:hidden fixed top-16 left-0 w-full bg-white border-t border-[#e5e7eb] shadow-lg transition-all duration-300 ease-in-out transform -translate-y-4 opacity-0 pointer-events-none z-40">
             <div class="px-6 py-4 space-y-2 text-base">
                 @role('SuperAdmin')
-                    <a href="{{ route('admin.users.index') }}" class="flex items-center gap-2 py-2 text-[#0c1c3c] hover:text-[#007bff] transition">
+                    <a href="{{ route('admin.users.index') }}"
+                        class="flex items-center gap-2 py-2 text-[#0c1c3c] hover:text-[#007bff] transition">
                         <i class="ph ph-users-four text-[#b79a37] text-lg"></i> Usuarios
                     </a>
-                    <a href="{{ route('referencias.index') }}" class="flex items-center gap-2 py-2 text-[#0c1c3c] hover:text-[#007bff] transition">
+                    <a href="{{ route('referencias.index') }}"
+                        class="flex items-center gap-2 py-2 text-[#0c1c3c] hover:text-[#007bff] transition">
                         <i class="ph ph-folder-open text-[#b79a37] text-lg"></i> Referencias
                     </a>
-                    <a href="{{ route('referencias.admin') }}" class="flex items-center gap-2 py-2 text-[#0c1c3c] hover:text-[#007bff] transition">
+                    <a href="{{ route('referencias.admin') }}"
+                        class="flex items-center gap-2 py-2 text-[#0c1c3c] hover:text-[#007bff] transition">
                         <i class="ph ph-list-magnifying-glass text-[#b79a37] text-lg"></i> Por Departamento
                     </a>
-                    <a href="{{ route('dashboard') }}" class="flex items-center gap-2 py-2 text-[#0c1c3c] hover:text-[#007bff] transition">
+                    <a href="{{ route('dashboard') }}"
+                        class="flex items-center gap-2 py-2 text-[#0c1c3c] hover:text-[#007bff] transition">
                         <i class="ph ph-gauge text-[#b79a37] text-lg"></i> Dashboard
                     </a>
                 @endrole
                 @hasanyrole('GAF|GOR|GSEA|DE')
-                    <a href="{{ route('referencias.index') }}" class="flex items-center gap-2 py-2 text-[#0c1c3c] hover:text-[#007bff] transition">
+                    <a href="{{ route('referencias.index') }}"
+                        class="flex items-center gap-2 py-2 text-[#0c1c3c] hover:text-[#007bff] transition">
                         <i class="ph ph-folder-user text-[#b79a37] text-lg"></i> Mis Referencias
                     </a>
-                    <a href="{{ route('dashboard') }}" class="flex items-center gap-2 py-2 text-[#0c1c3c] hover:text-[#007bff] transition">
+                    <a href="{{ route('dashboard') }}"
+                        class="flex items-center gap-2 py-2 text-[#0c1c3c] hover:text-[#007bff] transition">
                         <i class="ph ph-gauge text-[#b79a37] text-lg"></i> Dashboard
                     </a>
                 @endhasanyrole
@@ -128,10 +142,12 @@
                     <i class="ph ph-question text-[#b79a37] text-lg"></i> Ayuda
                 </a>
                 <div class="border-t border-[#e5e7eb] pt-3 mt-2">
-                    <span class="block text-gray-700 mb-2">Hola, <span class="font-semibold text-[#007bff]">{{ Auth::user()->name }}</span></span>
+                    <span class="block text-gray-700 mb-2">Hola, <span
+                            class="font-semibold text-[#007bff]">{{ Auth::user()->name }}</span></span>
                     <form method="POST" action="{{ route('logout') }}">
                         @csrf
-                        <button type="submit" class="text-red-600 hover:underline transition focus:outline-none focus:ring-2 focus:ring-[#b79a37]">Salir</button>
+                        <button type="submit"
+                            class="text-red-600 hover:underline transition focus:outline-none focus:ring-2 focus:ring-[#b79a37]">Salir</button>
                     </form>
                 </div>
             </div>
@@ -186,4 +202,5 @@
         });
     </script>
 </body>
+
 </html>

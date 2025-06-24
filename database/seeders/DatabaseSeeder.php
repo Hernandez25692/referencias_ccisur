@@ -14,11 +14,7 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         // User::factory(10)->create();
-<<<<<<< HEAD
-
-=======
         $this->call(RoleSeeder::class);
->>>>>>> recuperar-trabajo
         User::factory()->create([
             'name' => 'Test User',
             'email' => 'test@example.com',
