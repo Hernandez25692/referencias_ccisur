@@ -26,4 +26,9 @@ class Referencia extends Model
     {
         return $this->belongsTo(User::class);
     }
+
+    public function bitacoras()
+    {
+        return $this->hasMany(Bitacora::class);
+    }
 }

@@ -22,7 +22,7 @@ Route::get('/referencias/admin', [ReferenciaController::class, 'adminIndex'])
     ->middleware(['auth', 'SuperAdminOnly'])
     ->name('referencias.admin');
 
-    
+
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
@@ -34,5 +34,9 @@ Route::middleware(['auth', 'SuperAdminOnly'])->prefix('admin')->name('admin.')->
 
 Route::middleware(['auth'])->group(function () {
     Route::resource('referencias', ReferenciaController::class)->only(['index', 'create', 'store', 'edit', 'update', 'show']);
+    Route::get('/referencias/{referencia}/bitacora', [ReferenciaController::class, 'bitacora'])->name('referencias.bitacora');
 });
+
+
+
 require __DIR__ . '/auth.php';

@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Storage;
+use App\Models\Bitacora;
 
 
 class ReferenciaController extends Controller
@@ -55,12 +56,11 @@ class ReferenciaController extends Controller
         ]);
 
         $user = Auth::user();
-        $departamento = $user->getRoleNames()->first(); // GAF, GOR, etc.
+        $departamento = $user->getRoleNames()->first();
         $año = date('Y');
 
-        // Obtener el último correlativo
-        $inicioDelAño = Carbon::create($año, 1, 1, 0, 0, 0, 'UTC');
-        $finDelAño = Carbon::create($año, 12, 31, 23, 59, 59, 'UTC');
+        $inicioDelAño = Carbon::create(date('Y'), 1, 1, 0, 0, 0, 'UTC');
+        $finDelAño = Carbon::create(date('Y'), 12, 31, 23, 59, 59, 'UTC');
 
         $ultimo = Referencia::where('departamento', $departamento)
             ->whereBetween('created_at', [$inicioDelAño, $finDelAño])
@@ -69,20 +69,14 @@ class ReferenciaController extends Controller
         $correlativo = 'REF-CCISUR/' . $departamento . '-' . $año . '-' . str_pad($ultimo, 3, '0', STR_PAD_LEFT);
 
         $rutaDocumento = null;
-
         if ($request->hasFile('documento')) {
-            $file = $request->file('documento');
-            $extension = $file->getClientOriginalExtension();
-
-            // Procesar nombre del archivo
-            $asuntoSlug = Str::slug(Str::limit($request->asunto ?? 'documento', 20, ''));
-            $nombreArchivo = str_replace('/', '-', $correlativo) . '_' . $asuntoSlug . '.' . $extension;
-
-            // Guardar con nombre personalizado
-            $rutaDocumento = $file->storeAs('documentos', $nombreArchivo, 'public');
+            $extension = $request->file('documento')->getClientOriginalExtension();
+            $nombreLimpio = preg_replace('/[^a-zA-Z0-9_-]/', '', Str::slug(Str::limit($request->asunto, 20)));
+            $nuevoNombre = $correlativo . '-' . $nombreLimpio . '.' . $extension;
+            $rutaDocumento = $request->file('documento')->storeAs('documentos', $nuevoNombre, 'public');
         }
 
-        Referencia::create([
+        $referencia = Referencia::create([
             'correlativo' => $correlativo,
             'asunto' => $request->asunto,
             'solicitado_por' => $request->solicitado_por,
@@ -90,6 +84,14 @@ class ReferenciaController extends Controller
             'documento' => $rutaDocumento,
             'departamento' => $departamento,
             'estado' => $request->filled('asunto', 'documento', 'autorizado_por', 'solicitado_por') && $request->hasFile('documento') ? 'completo' : 'pendiente',
+            'user_id' => $user->id,
+        ]);
+
+        // Registro en la bitácora
+        Bitacora::create([
+            'referencia_id' => $referencia->id,
+            'accion' => 'creado',
+            'cambios' => 'Referencia registrada con correlativo: ' . $correlativo,
             'user_id' => $user->id,
         ]);
 
@@ -115,30 +117,59 @@ class ReferenciaController extends Controller
             'documento' => 'nullable|file|mimes:pdf,docx,doc,jpg,png|max:2048',
         ]);
 
+        $user = Auth::user();
+
+        $cambios = [];
+
+        // Comparar campos uno a uno
+        if ($referencia->asunto !== $request->asunto) {
+            $cambios[] = "Asunto: '{$referencia->asunto}' → '{$request->asunto}'";
+            $referencia->asunto = $request->asunto;
+        }
+
+        if ($referencia->solicitado_por !== $request->solicitado_por) {
+            $cambios[] = "Solicitado por: '{$referencia->solicitado_por}' → '{$request->solicitado_por}'";
+            $referencia->solicitado_por = $request->solicitado_por;
+        }
+
+        if ($referencia->autorizado_por !== $request->autorizado_por) {
+            $cambios[] = "Autorizado por: '{$referencia->autorizado_por}' → '{$request->autorizado_por}'";
+            $referencia->autorizado_por = $request->autorizado_por;
+        }
+
         if ($request->hasFile('documento')) {
-            $file = $request->file('documento');
-            $extension = $file->getClientOriginalExtension();
+            $extension = $request->file('documento')->getClientOriginalExtension();
+            $nombreLimpio = preg_replace('/[^a-zA-Z0-9_-]/', '', Str::slug(Str::limit($request->asunto, 20)));
+            $nuevoNombre = $referencia->correlativo . '-' . $nombreLimpio . '.' . $extension;
+            $rutaDocumento = $request->file('documento')->storeAs('documentos', $nuevoNombre, 'public');
 
-            // Usamos el asunto nuevo si se está editando, o el anterior si no se ha cambiado
-            $asuntoBase = $request->asunto ?? $referencia->asunto ?? 'documento';
-            $asuntoSlug = Str::slug(Str::limit($asuntoBase, 20, ''));
-
-            // Reemplazamos las diagonales del correlativo
-            $nombreArchivo = str_replace('/', '-', $referencia->correlativo) . '_' . $asuntoSlug . '.' . $extension;
-
-            $rutaDocumento = $file->storeAs('documentos', $nombreArchivo, 'public');
+            $cambios[] = "Documento actualizado: {$nuevoNombre}";
             $referencia->documento = $rutaDocumento;
         }
 
-        $referencia->asunto = $request->asunto;
-        $referencia->solicitado_por = $request->solicitado_por;
-        $referencia->autorizado_por = $request->autorizado_por;
-
+        // Recalcular estado
+        $estadoAnterior = $referencia->estado;
         $referencia->estado = $referencia->asunto && $referencia->documento ? 'completo' : 'pendiente';
+
+        if ($referencia->estado !== $estadoAnterior) {
+            $cambios[] = "Estado: '{$estadoAnterior}' → '{$referencia->estado}'";
+        }
+
         $referencia->save();
+
+        // Solo registrar en bitácora si hubo cambios
+        if (!empty($cambios)) {
+            Bitacora::create([
+                'referencia_id' => $referencia->id,
+                'accion' => 'actualizado',
+                'cambios' => implode(' | ', $cambios),
+                'user_id' => $user->id,
+            ]);
+        }
 
         return redirect()->route('referencias.index')->with('success', 'Los datos de la referencia han sido actualizados con éxito.');
     }
+
 
     public function adminIndex(Request $request)
     {
@@ -176,5 +207,13 @@ class ReferenciaController extends Controller
     public function show(Referencia $referencia)
     {
         return view('referencias.show', compact('referencia'));
+    }
+
+    //solo para SuperAdmin
+    public function bitacora(Referencia $referencia)
+    {
+        $referencia->load(['bitacoras.user']);
+
+        return view('referencias.bitacora', compact('referencia'));
     }
 }
