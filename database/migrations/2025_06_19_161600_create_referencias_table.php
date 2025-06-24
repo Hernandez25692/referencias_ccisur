@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('referencias', function (Blueprint $table) {
             $table->id();
             $table->string('correlativo')->unique();
-            $table->string('asunto')->nullable();
+            $table->text('asunto')->nullable();
             $table->string('solicitado_por')->nullable();
             $table->string('autorizado_por')->nullable();
             $table->string('documento')->nullable(); // Ruta del archivo

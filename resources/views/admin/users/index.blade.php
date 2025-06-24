@@ -9,15 +9,8 @@
             <!-- Título -->
             <h2 class="text-3xl font-extrabold text-center text-[#002c5f] mb-8">Usuarios del Sistema</h2>
 
-            <!-- Mensaje de éxito -->
-            @if (session('success'))
-                <div class="mb-6 flex items-center justify-center">
-                    <div
-                        class="bg-green-100 border border-green-300 text-green-800 px-6 py-3 rounded-lg shadow w-full max-w-md text-center">
-                        {{ session('success') }}
-                    </div>
-                </div>
-            @endif
+
+
 
             <!-- Botón agregar -->
             <div class="flex justify-end mb-4">
@@ -99,4 +92,31 @@
             </div>
         </div>
     </div>
+    <!-- Mensaje de éxito -->
+    @if (session('success'))
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                Swal.fire({
+                    toast: true,
+                    position: 'top-end',
+                    icon: 'success',
+                    title: '¡Operación Exitosa!',
+                    html: `<div style="font-size: 14px; font-weight: 500;">{{ session('success') }}</div>`,
+                    background: '#f8fafc',
+                    color: '#002c5f',
+                    iconColor: '#10b981',
+                    showConfirmButton: false,
+                    timer: 4000,
+                    timerProgressBar: true,
+                    customClass: {
+                        popup: 'shadow-lg border border-[#b79a37] rounded-lg'
+                    },
+                    didOpen: (toast) => {
+                        toast.addEventListener('mouseenter', Swal.stopTimer)
+                        toast.addEventListener('mouseleave', Swal.resumeTimer)
+                    }
+                });
+            });
+        </script>
+    @endif
 @endsection
