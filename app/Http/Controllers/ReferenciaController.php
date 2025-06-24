@@ -6,6 +6,8 @@ use App\Models\Referencia;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Storage;
 
 
 class ReferenciaController extends Controller
@@ -57,8 +59,8 @@ class ReferenciaController extends Controller
         $año = date('Y');
 
         // Obtener el último correlativo
-        $inicioDelAño = Carbon::create(date('Y'), 1, 1, 0, 0, 0, 'UTC');
-        $finDelAño = Carbon::create(date('Y'), 12, 31, 23, 59, 59, 'UTC');
+        $inicioDelAño = Carbon::create($año, 1, 1, 0, 0, 0, 'UTC');
+        $finDelAño = Carbon::create($año, 12, 31, 23, 59, 59, 'UTC');
 
         $ultimo = Referencia::where('departamento', $departamento)
             ->whereBetween('created_at', [$inicioDelAño, $finDelAño])
@@ -67,8 +69,17 @@ class ReferenciaController extends Controller
         $correlativo = 'REF-CCISUR/' . $departamento . '-' . $año . '-' . str_pad($ultimo, 3, '0', STR_PAD_LEFT);
 
         $rutaDocumento = null;
+
         if ($request->hasFile('documento')) {
-            $rutaDocumento = $request->file('documento')->store('documentos', 'public');
+            $file = $request->file('documento');
+            $extension = $file->getClientOriginalExtension();
+
+            // Procesar nombre del archivo
+            $asuntoSlug = Str::slug(Str::limit($request->asunto ?? 'documento', 20, ''));
+            $nombreArchivo = str_replace('/', '-', $correlativo) . '_' . $asuntoSlug . '.' . $extension;
+
+            // Guardar con nombre personalizado
+            $rutaDocumento = $file->storeAs('documentos', $nombreArchivo, 'public');
         }
 
         Referencia::create([
@@ -105,7 +116,17 @@ class ReferenciaController extends Controller
         ]);
 
         if ($request->hasFile('documento')) {
-            $rutaDocumento = $request->file('documento')->store('documentos', 'public');
+            $file = $request->file('documento');
+            $extension = $file->getClientOriginalExtension();
+
+            // Usamos el asunto nuevo si se está editando, o el anterior si no se ha cambiado
+            $asuntoBase = $request->asunto ?? $referencia->asunto ?? 'documento';
+            $asuntoSlug = Str::slug(Str::limit($asuntoBase, 20, ''));
+
+            // Reemplazamos las diagonales del correlativo
+            $nombreArchivo = str_replace('/', '-', $referencia->correlativo) . '_' . $asuntoSlug . '.' . $extension;
+
+            $rutaDocumento = $file->storeAs('documentos', $nombreArchivo, 'public');
             $referencia->documento = $rutaDocumento;
         }
 

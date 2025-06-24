@@ -28,6 +28,10 @@
                     class="text-sm text-[#007bff] hover:underline flex items-center gap-1">
                     <i class="ph ph-arrow-left"></i> Volver a la lista
                 </a>
+                <a href="{{ route('referencias.edit', $referencia->id) }}"
+                    class="ml-4 text-sm text-green-600 hover:underline flex items-center gap-1">
+                    <i class="ph ph-pencil"></i> Editar
+                </a>
             @endrole
         </div>
 
