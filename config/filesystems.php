@@ -29,6 +29,13 @@ return [
     */
 
     'disks' => [
+'departamentos' => [
+    'driver' => 'local',
+    'root' => '/mnt/referencias/REFSIS',
+    'url' => env('APP_URL').'/departamentos',
+    'visibility' => 'public',
+],
+
 
         'local' => [
             'driver' => 'local',

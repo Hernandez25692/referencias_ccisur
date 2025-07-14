@@ -128,12 +128,27 @@
                 Cancelar
             </a>
             <button type="submit"
-                class="px-5 py-2.5 rounded-lg bg-gradient-to-r from-[#002c5f] to-[#b79a37] text-white hover:opacity-90 transition duration-200 flex items-center gap-2 shadow-md font-semibold focus:outline-none">
+                class="px-5 py-2.5 rounded-lg bg-gradient-to-r from-[#002c5f] to-[#b79a37] text-white hover:opacity-90 transition duration-200 flex items-center gap-2 shadow-md font-semibold focus:outline-none" id="submitBtn">
                 <i class="ph ph-floppy-disk"></i>
                 Actualizar Referencia
             </button>
         </div>
     </form>
+</div>
+
+<!-- Modal de confirmación -->
+<div id="confirmModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 hidden">
+    <div class="bg-white rounded-xl shadow-lg p-8 max-w-sm w-full animate__animated animate__fadeIn">
+        <div class="flex flex-col items-center text-center">
+            <i class="ph ph-warning-circle text-4xl text-[#b79a37] mb-2"></i>
+            <h3 class="text-lg font-semibold text-[#002c5f] mb-2">¿Confirmar actualización?</h3>
+            <p class="text-gray-600 text-sm mb-6">¿Está seguro que desea actualizar esta referencia? Los cambios serán guardados.</p>
+            <div class="flex gap-3 w-full justify-center">
+                <button type="button" id="cancelModalBtn" class="px-4 py-2 rounded-lg border border-gray-300 text-[#002c5f] bg-white hover:bg-gray-50 transition font-medium">Cancelar</button>
+                <button type="button" id="confirmModalBtn" class="px-4 py-2 rounded-lg bg-gradient-to-r from-[#002c5f] to-[#b79a37] text-white font-semibold hover:opacity-90 transition">Sí, actualizar</button>
+            </div>
+        </div>
+    </div>
 </div>
 
 @section('fab')
@@ -152,7 +167,6 @@
     const removeFileBtn = document.getElementById('removeFileBtn');
 
     documentoInput.addEventListener('change', function() {
-        // Si selecciona un archivo, ocultar la vista previa del documento actual
         @if ($referencia->documento)
             previewContainer.innerHTML = '';
         @endif
@@ -161,11 +175,7 @@
             fileNameDisplay.textContent = file.name;
             fileNameDisplay.classList.remove('hidden');
             removeFileBtn.classList.remove('hidden');
-
-            // Animación
             fileNameDisplay.classList.add('animate__animated', 'animate__fadeInRight');
-
-            // Vista previa para imágenes
             if (file.type.startsWith('image/')) {
                 const reader = new FileReader();
                 reader.onload = function(e) {
@@ -173,7 +183,6 @@
                 };
                 reader.readAsDataURL(file);
             } else if (file.type === 'application/pdf') {
-                // Vista previa para PDF
                 previewContainer.innerHTML = `<embed src="${URL.createObjectURL(file)}" type="application/pdf" class="w-full max-h-40 rounded shadow border animate__animated animate__fadeInUp" />`;
             } else {
                 previewContainer.innerHTML = '';
@@ -185,14 +194,12 @@
         }
     });
 
-    // Quitar archivo seleccionado
     removeFileBtn.addEventListener('click', function() {
         documentoInput.value = '';
         fileNameDisplay.textContent = '';
         fileNameDisplay.classList.add('hidden');
         previewContainer.innerHTML = '';
         removeFileBtn.classList.add('hidden');
-        // Si hay documento actual, volver a mostrarlo
         @if ($referencia->documento)
             previewContainer.innerHTML = `
                 <div class="mb-2">
@@ -208,8 +215,16 @@
         @endif
     });
 
-    // Validación antes de enviar (no requiere documento en edición)
-    document.getElementById('referenciaForm').addEventListener('submit', function(e) {
+    // Modal de confirmación
+    const referenciaForm = document.getElementById('referenciaForm');
+    const confirmModal = document.getElementById('confirmModal');
+    const cancelModalBtn = document.getElementById('cancelModalBtn');
+    const confirmModalBtn = document.getElementById('confirmModalBtn');
+    const submitBtn = document.getElementById('submitBtn');
+    let formIsValid = false;
+
+    referenciaForm.addEventListener('submit', function(e) {
+        // Validación antes de mostrar el modal
         const requiredFields = ['asunto', 'solicitado_por'];
         let isValid = true;
 
@@ -230,6 +245,34 @@
             } else {
                 alert('Por favor complete todos los campos requeridos');
             }
+            return;
+        }
+
+        // Si ya fue validado y confirmado, permitir el envío
+        if (formIsValid) {
+            formIsValid = false;
+            return;
+        }
+
+        // Mostrar modal y prevenir envío
+        e.preventDefault();
+        confirmModal.classList.remove('hidden');
+    });
+
+    cancelModalBtn.addEventListener('click', function() {
+        confirmModal.classList.add('hidden');
+    });
+
+    confirmModalBtn.addEventListener('click', function() {
+        formIsValid = true;
+        confirmModal.classList.add('hidden');
+        referenciaForm.submit();
+    });
+
+    // Cerrar modal con ESC
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && !confirmModal.classList.contains('hidden')) {
+            confirmModal.classList.add('hidden');
         }
     });
 </script>

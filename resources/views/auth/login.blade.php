@@ -118,19 +118,6 @@
                         placeholder="••••••••">
                 </div>
 
-                <!-- Recordar y Olvidaste -->
-                <div class="flex items-center justify-between">
-                    <label class="flex items-center select-none">
-                        <input type="checkbox" name="remember"
-                            class="rounded border-gray-400 text-[#b79a37] shadow-sm focus:ring-[#b79a37] accent-[#b79a37] transition duration-150">
-                        <span class="ml-2 text-sm text-gray-200">Recordarme</span>
-                    </label>
-                    @if (Route::has('password.request'))
-                        <a class="text-sm text-[#b79a37] hover:underline transition" href="{{ route('password.request') }}">
-                            ¿Olvidaste tu contraseña?
-                        </a>
-                    @endif
-                </div>
 
                 <div>
                     <button type="submit"
