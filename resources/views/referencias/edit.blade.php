@@ -240,12 +240,19 @@
 
         if (!isValid) {
             e.preventDefault();
-            if (typeof showNotification === 'function') {
-                showNotification('Por favor complete todos los campos requeridos', 'error');
-            } else {
-                alert('Por favor complete todos los campos requeridos');
-            }
+            // Personaliza el modal de error
+            confirmModal.classList.remove('hidden');
+            confirmModal.querySelector('.ph-warning-circle').classList.add('text-red-500');
+            confirmModal.querySelector('h3').textContent = 'Campos requeridos incompletos';
+            confirmModal.querySelector('p').textContent = 'Por favor complete todos los campos marcados con * antes de continuar.';
+            confirmModal.querySelector('#confirmModalBtn').style.display = 'none';
             return;
+        } else {
+            // Restaurar el modal si estaba personalizado por error
+            confirmModal.querySelector('.ph-warning-circle').classList.remove('text-red-500');
+            confirmModal.querySelector('h3').textContent = '¿Confirmar actualización?';
+            confirmModal.querySelector('p').textContent = '¿Está seguro que desea actualizar esta referencia? Los cambios serán guardados.';
+            confirmModal.querySelector('#confirmModalBtn').style.display = '';
         }
 
         // Si ya fue validado y confirmado, permitir el envío
