@@ -254,15 +254,28 @@ class ReferenciaController extends Controller
             $query->where('departamento', $request->departamento);
         }
 
+        // ✅ Filtro por año
+        if ($request->filled('anio')) {
+            $query->whereYear('created_at', $request->anio);
+        }
+
+        // ✅ Obtener todos los años disponibles
+        $aniosDisponibles = Referencia::selectRaw('YEAR(created_at) as anio')
+            ->distinct()
+            ->orderByDesc('anio')
+            ->pluck('anio');
+
+        $perPage = $request->input('per_page', 20); // por defecto 20
         $referencias = $query->orderByDesc('created_at')
-            ->paginate(20)
+            ->paginate($perPage)
             ->appends($request->query());
 
-        // Lista única de departamentos para el select
+
         $departamentos = Referencia::select('departamento')->distinct()->pluck('departamento');
 
-        return view('referencias.admin_index', compact('referencias', 'departamentos'));
+        return view('referencias.admin_index', compact('referencias', 'departamentos', 'aniosDisponibles'));
     }
+
 
 
 
