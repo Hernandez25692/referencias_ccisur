@@ -49,7 +49,8 @@ class ReferenciaController extends Controller
 
         // Paginación dinámica
         $perPage = $request->input('per_page', 30);
-        $referencias = $query->orderByDesc('created_at')
+        $referencias = $query->orderByDesc('correlativo')
+
             ->paginate($perPage)
             ->appends($request->query());
 
@@ -266,7 +267,7 @@ class ReferenciaController extends Controller
             ->pluck('anio');
 
         $perPage = $request->input('per_page', 20); // por defecto 20
-        $referencias = $query->orderByDesc('created_at')
+        $referencias = $query->orderByDesc('correlativo')
             ->paginate($perPage)
             ->appends($request->query());
 
