@@ -20,6 +20,7 @@ class ReferenciaController extends Controller
 
         $query = Referencia::where('departamento', $rol);
 
+        // Filtro búsqueda
         if ($request->filled('search')) {
             $query->where(function ($q) use ($request) {
                 $q->where('correlativo', 'like', '%' . $request->search . '%')
@@ -29,15 +30,32 @@ class ReferenciaController extends Controller
             });
         }
 
+        // Filtro estado
         if ($request->filled('estado')) {
             $query->where('estado', $request->estado);
         }
 
-        $referencias = $query->orderByRaw('created_at DESC')->paginate(30)->appends($request->query());
+        // ✅ Filtro año
+        if ($request->filled('anio')) {
+            $query->whereYear('created_at', $request->anio);
+        }
 
+        // Obtener años únicos para el select (solo del departamento actual)
+        $aniosDisponibles = Referencia::where('departamento', $rol)
+            ->selectRaw('YEAR(created_at) as anio')
+            ->distinct()
+            ->orderByDesc('anio')
+            ->pluck('anio');
 
-        return view('referencias.index', compact('referencias'));
+        // Paginación dinámica
+        $perPage = $request->input('per_page', 30);
+        $referencias = $query->orderByDesc('created_at')
+            ->paginate($perPage)
+            ->appends($request->query());
+
+        return view('referencias.index', compact('referencias', 'aniosDisponibles'));
     }
+
 
 
 
