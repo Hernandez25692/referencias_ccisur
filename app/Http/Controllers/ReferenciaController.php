@@ -33,7 +33,7 @@ class ReferenciaController extends Controller
             $query->where('estado', $request->estado);
         }
 
-        $referencias = $query->orderByRaw('created_at DESC')->paginate(10)->appends($request->query());
+        $referencias = $query->orderByRaw('created_at DESC')->paginate(30)->appends($request->query());
 
 
         return view('referencias.index', compact('referencias'));
@@ -59,22 +59,47 @@ class ReferenciaController extends Controller
         $departamento = $user->getRoleNames()->first();
         $año = date('Y');
 
-        $inicioDelAño = Carbon::create(date('Y'), 1, 1, 0, 0, 0, 'UTC');
-        $finDelAño = Carbon::create(date('Y'), 12, 31, 23, 59, 59, 'UTC');
+        $inicioDelAño = Carbon::create(date('Y'), 1, 1);
+        $finDelAño = Carbon::create(date('Y'), 12, 31, 23, 59, 59);
 
         $ultimo = Referencia::where('departamento', $departamento)
             ->whereBetween('created_at', [$inicioDelAño, $finDelAño])
             ->count() + 1;
 
-        $correlativo = 'REF-CCISUR/' . $departamento . '-' . $año . '-' . str_pad($ultimo, 3, '0', STR_PAD_LEFT);
+        $correlativoNum = $departamento . '-' . $año . '-' . str_pad($ultimo, 3, '0', STR_PAD_LEFT);
+        $correlativo = 'REF-CCISUR/' . $correlativoNum;
+
 
         $rutaDocumento = null;
+        $nombreArchivoFinal = null;
+
         if ($request->hasFile('documento')) {
-            $extension = $request->file('documento')->getClientOriginalExtension();
-            $nombreLimpio = preg_replace('/[^a-zA-Z0-9_-]/', '', Str::slug(Str::limit($request->asunto, 20)));
-            $nuevoNombre = $correlativo . '-' . $nombreLimpio . '.' . $extension;
-            $rutaDocumento = $request->file('documento')->storeAs('documentos', $nuevoNombre, 'public');
+            $archivo = $request->file('documento');
+            $extension = $archivo->getClientOriginalExtension();
+            $nombreLimpio = preg_replace('/[^a-zA-Z0-9_-]/', '', Str::slug($request->asunto));
+            $nombreArchivoFinal = 'REF-CCISUR-' . $correlativoNum . '-' . $nombreLimpio . '.' . $extension;
+
+
+            $rutaDocumento = $archivo->storeAs('documentos', $nombreArchivoFinal, 'public');
+
+            // Copiar a carpeta compartida GENERAL
+            $carpetaDestino = "/mnt/referencias/REFSIS/{$departamento}/";
+
+            if (!file_exists($carpetaDestino)) {
+                mkdir($carpetaDestino, 0777, true);
+            }
+
+            $origen = storage_path("app/public/{$rutaDocumento}");
+            $destino = "{$carpetaDestino}/{$nombreArchivoFinal}";
+
+            try {
+                copy($origen, $destino);
+            } catch (\Exception $e) {
+                \Log::error("Error copiando a carpeta compartida: " . $e->getMessage());
+            }
         }
+
+        $estado = ($request->filled(['asunto', 'solicitado_por', 'autorizado_por']) && $rutaDocumento) ? 'completo' : 'pendiente';
 
         $referencia = Referencia::create([
             'correlativo' => $correlativo,
@@ -83,11 +108,10 @@ class ReferenciaController extends Controller
             'autorizado_por' => $request->autorizado_por,
             'documento' => $rutaDocumento,
             'departamento' => $departamento,
-            'estado' => $request->filled('asunto', 'documento', 'autorizado_por', 'solicitado_por') && $request->hasFile('documento') ? 'completo' : 'pendiente',
+            'estado' => $estado,
             'user_id' => $user->id,
         ]);
 
-        // Registro en la bitácora
         Bitacora::create([
             'referencia_id' => $referencia->id,
             'accion' => 'creado',
@@ -97,6 +121,8 @@ class ReferenciaController extends Controller
 
         return redirect()->route('referencias.index')->with('success', 'La referencia fue registrada exitosamente y está disponible en el sistema.');
     }
+
+
 
     public function edit(Referencia $referencia)
     {
@@ -118,10 +144,8 @@ class ReferenciaController extends Controller
         ]);
 
         $user = Auth::user();
-
         $cambios = [];
 
-        // Comparar campos uno a uno
         if ($referencia->asunto !== $request->asunto) {
             $cambios[] = "Asunto: '{$referencia->asunto}' → '{$request->asunto}'";
             $referencia->asunto = $request->asunto;
@@ -138,18 +162,37 @@ class ReferenciaController extends Controller
         }
 
         if ($request->hasFile('documento')) {
-            $extension = $request->file('documento')->getClientOriginalExtension();
-            $nombreLimpio = preg_replace('/[^a-zA-Z0-9_-]/', '', Str::slug(Str::limit($request->asunto, 20)));
-            $nuevoNombre = $referencia->correlativo . '-' . $nombreLimpio . '.' . $extension;
-            $rutaDocumento = $request->file('documento')->storeAs('documentos', $nuevoNombre, 'public');
+            $archivo = $request->file('documento');
+            $extension = $archivo->getClientOriginalExtension();
+            $nombreLimpio = preg_replace('/[^a-zA-Z0-9_-]/', '', Str::slug($request->asunto));
 
-            $cambios[] = "Documento actualizado: {$nuevoNombre}";
+            $correlativoPlano = str_replace('/', '-', $referencia->correlativo); // <-- este es el fix clave
+            $nombreArchivoFinal = $correlativoPlano . '-' . $nombreLimpio . '.' . $extension;
+
+            $rutaDocumento = $archivo->storeAs('documentos', $nombreArchivoFinal, 'public');
+
+            $carpetaDestino = "/mnt/referencias/REFSIS/{$referencia->departamento}/";
+
+            if (!file_exists($carpetaDestino)) {
+                mkdir($carpetaDestino, 0777, true);
+            }
+
+            $origen = storage_path("app/public/{$rutaDocumento}");
+            $destino = "{$carpetaDestino}/{$nombreArchivoFinal}";
+
+            try {
+                copy($origen, $destino);
+            } catch (\Exception $e) {
+                \Log::error("Error copiando archivo actualizado: " . $e->getMessage());
+            }
+
+            $cambios[] = "Documento actualizado: {$nombreArchivoFinal}";
             $referencia->documento = $rutaDocumento;
         }
 
-        // Recalcular estado
+
         $estadoAnterior = $referencia->estado;
-        $referencia->estado = $referencia->asunto && $referencia->documento ? 'completo' : 'pendiente';
+        $referencia->estado = ($referencia->asunto && $referencia->solicitado_por && $referencia->autorizado_por && $referencia->documento) ? 'completo' : 'pendiente';
 
         if ($referencia->estado !== $estadoAnterior) {
             $cambios[] = "Estado: '{$estadoAnterior}' → '{$referencia->estado}'";
@@ -157,7 +200,6 @@ class ReferenciaController extends Controller
 
         $referencia->save();
 
-        // Solo registrar en bitácora si hubo cambios
         if (!empty($cambios)) {
             Bitacora::create([
                 'referencia_id' => $referencia->id,
@@ -169,6 +211,8 @@ class ReferenciaController extends Controller
 
         return redirect()->route('referencias.index')->with('success', 'Los datos de la referencia han sido actualizados con éxito.');
     }
+
+
 
 
     public function adminIndex(Request $request)
@@ -193,7 +237,7 @@ class ReferenciaController extends Controller
         }
 
         $referencias = $query->orderByDesc('created_at')
-            ->paginate(10)
+            ->paginate(20)
             ->appends($request->query());
 
         // Lista única de departamentos para el select
