@@ -1,0 +1,10 @@
+Acceso Remoto GitBash
+ ssh useradmin@192.168.0.153
+
+Contraseña: Cc!$2019
+
+
+
+----Libreria Excel
+composer require maatwebsite/excel
+

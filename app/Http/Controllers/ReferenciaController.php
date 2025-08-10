@@ -9,6 +9,9 @@ use Carbon\Carbon;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Storage;
 use App\Models\Bitacora;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\ReferenciasExport;
+
 
 
 class ReferenciaController extends Controller
@@ -291,5 +294,33 @@ class ReferenciaController extends Controller
         $referencia->load(['bitacoras.user']);
 
         return view('referencias.bitacora', compact('referencia'));
+    }
+
+    // Exportar referencias en formato Excel
+    public function export(Request $request)
+    {
+        $user = Auth::user();
+        $departamento = $user->getRoleNames()->first(); // mismo criterio que index()
+
+        $request->validate([
+            'desde' => ['nullable', 'date_format:Y-m-d'],
+            'hasta' => ['nullable', 'date_format:Y-m-d'],
+        ]);
+
+        $desde = $request->input('desde');
+        $hasta = $request->input('hasta');
+
+        if (($desde && !$hasta) || (!$desde && $hasta)) {
+            return back()->with('error', 'Debes seleccionar ambas fechas (desde y hasta).');
+        }
+
+        $stamp = now()->format('Ymd_His');
+        $rango = ($desde && $hasta) ? "{$desde}_a_{$hasta}" : 'completo';
+        $filename = "referencias_{$departamento}_{$rango}_{$stamp}.xlsx";
+
+        return Excel::download(
+            new ReferenciasExport($departamento, $desde, $hasta),
+            $filename
+        );
     }
 }

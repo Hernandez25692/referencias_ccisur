@@ -10,6 +10,55 @@
                 </h2>
                 <p class="text-gray-600">Gestión completa de referencias documentales</p>
             </div>
+            <!-- Sección diferenciada para exportar a Excel -->
+            <div class="mb-6 border-l-4 border-green-600 bg-green-50 p-4 rounded-md shadow-sm">
+                <div class="flex flex-col sm:flex-row sm:items-end sm:space-x-4">
+                    <form action="{{ route('referencias.export') }}" method="GET" class="flex flex-wrap items-end space-x-2">
+                        <div>
+                            <label for="desde" class="block text-sm font-medium text-green-900">Desde:</label>
+                            <input type="date" name="desde" id="desde" value="{{ request('desde') }}"
+                                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500"
+                                onchange="document.getElementById('hasta').min = this.value;">
+                        </div>
+                        <div>
+                            <label for="hasta" class="block text-sm font-medium text-green-900">Hasta:</label>
+                            <input type="date" name="hasta" id="hasta" value="{{ request('hasta') }}"
+                                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500"
+                                onchange="document.getElementById('desde').max = this.value;">
+                        </div>
+                        <script>
+                            document.addEventListener('DOMContentLoaded', function() {
+                                const desde = document.getElementById('desde');
+                                const hasta = document.getElementById('hasta');
+                                if (desde && hasta) {
+                                    if (desde.value) hasta.min = desde.value;
+                                    if (hasta.value) desde.max = hasta.value;
+                                    desde.addEventListener('change', function() {
+                                        hasta.min = this.value;
+                                    });
+                                    hasta.addEventListener('change', function() {
+                                        desde.max = this.value;
+                                    });
+                                }
+                            });
+                        </script>
+                        <div class="mt-4 sm:mt-0">
+                            <button type="submit"
+                                class="inline-flex items-center px-4 py-2 bg-green-600 border border-transparent rounded-md font-semibold text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
+                                <i class="ph ph-file-xls mr-1"></i> Exportar por rango
+                            </button>
+                        </div>
+                    </form>
+                    <!-- Botón exportar todo -->
+                    <div class="mt-2 sm:mt-0">
+                        <a href="{{ route('referencias.export') }}"
+                            class="inline-flex items-center px-4 py-2 bg-blue-600 border border-transparent rounded-md font-semibold text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                            <i class="ph ph-download-simple mr-1"></i> Exportar Todo
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <!-- Fin sección exportar excel -->
 
             <!-- Action Bar -->
             <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
@@ -80,10 +129,14 @@
                                 class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#007bff] transition">
                                 Limpiar
                             </a>
-                            @if(request('search') || request('estado') || request('per_page') || request('anio'))
-                                <span class="inline-flex items-center px-2 py-1 ml-2 text-xs font-semibold rounded bg-yellow-100 text-yellow-800 border border-yellow-200" title="Filtro activo">
+                            @if (request('search') || request('estado') || request('per_page') || request('anio'))
+                                <span
+                                    class="inline-flex items-center px-2 py-1 ml-2 text-xs font-semibold rounded bg-yellow-100 text-yellow-800 border border-yellow-200"
+                                    title="Filtro activo">
                                     <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                                        <path fill-rule="evenodd" d="M3 3a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-.293.707l-4.414 4.414V15a1 1 0 01-1.447.894l-2-1A1 1 0 018 14V10.121L3.293 5.707A1 1 0 013 5V3z" clip-rule="evenodd"/>
+                                        <path fill-rule="evenodd"
+                                            d="M3 3a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-.293.707l-4.414 4.414V15a1 1 0 01-1.447.894l-2-1A1 1 0 018 14V10.121L3.293 5.707A1 1 0 013 5V3z"
+                                            clip-rule="evenodd" />
                                     </svg>
                                     Filtro activo
                                 </span>
@@ -169,7 +222,8 @@
                                     Documento</th>
                                 <th scope="col" class="px-6 py-3 text-left text-xs font-bold uppercase tracking-wider">
                                     Estado</th>
-                                <th scope="col" class="px-6 py-3 text-center text-xs font-bold uppercase tracking-wider">
+                                <th scope="col"
+                                    class="px-6 py-3 text-center text-xs font-bold uppercase tracking-wider">
                                     Acciones</th>
                             </tr>
                         </thead>

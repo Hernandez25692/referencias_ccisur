@@ -48,6 +48,19 @@
             </p>
         </div>
 
+        <!-- Botón de acceso con efecto de luz -->
+        <div class="mt-12 animate-fade-in-up" style="animation-delay: 0.5s;">
+            <a href="{{ route('login') }}"
+               class="cta-button relative overflow-hidden group">
+                <span class="absolute inset-0 bg-gradient-to-r from-[#b79a37] to-[#d4b24c] group-hover:from-[#d4b24c] group-hover:to-[#b79a37] transition-all duration-500"></span>
+                <span class="light-effect absolute top-0 left-0 w-full h-full opacity-0 group-hover:opacity-100 transition-opacity duration-700"></span>
+                <span class="relative z-10 flex items-center justify-center px-8 py-3 text-lg font-bold tracking-wide">
+                    Iniciar Sesión
+                    <i class="fas fa-arrow-right ml-2 transition-transform group-hover:translate-x-2"></i>
+                </span>
+            </a>
+        </div>
+
         <!-- Tarjetas de características mejoradas -->
         <div class="w-full max-w-5xl mx-auto mt-8 grid gap-6 md:grid-cols-3 animate-fade-in-up" style="animation-delay: 0.3s;">
             <!-- Tarjeta 1 con efecto 3D -->
@@ -85,20 +98,10 @@
                 </p>
                 <div class="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-[#b79a37] to-[#d4b24c] opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
             </div>
+            
         </div>
 
-        <!-- Botón de acceso con efecto de luz -->
-        <div class="mt-12 animate-fade-in-up" style="animation-delay: 0.5s;">
-            <a href="{{ route('login') }}"
-               class="cta-button relative overflow-hidden group">
-                <span class="absolute inset-0 bg-gradient-to-r from-[#b79a37] to-[#d4b24c] group-hover:from-[#d4b24c] group-hover:to-[#b79a37] transition-all duration-500"></span>
-                <span class="light-effect absolute top-0 left-0 w-full h-full opacity-0 group-hover:opacity-100 transition-opacity duration-700"></span>
-                <span class="relative z-10 flex items-center justify-center px-8 py-3 text-lg font-bold tracking-wide">
-                    Iniciar Sesión
-                    <i class="fas fa-arrow-right ml-2 transition-transform group-hover:translate-x-2"></i>
-                </span>
-            </a>
-        </div>
+        
 
         <!-- Efecto de conexión entre tarjetas -->
         <svg class="hidden md:block absolute z-0 w-full h-full top-0 left-0 pointer-events-none">

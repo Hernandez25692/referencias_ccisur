@@ -17,6 +17,10 @@ Route::get('/dashboard', function () {
     }
 })->middleware('auth')->name('dashboard');
 
+Route::middleware(['auth'])->group(function () {
+    Route::get('/referencias/exportar', [ReferenciaController::class, 'export'])
+        ->name('referencias.export');
+});
 // Para la vista de referencias generales por departamento (solo SuperAdmin)
 Route::get('/referencias/admin', [ReferenciaController::class, 'adminIndex'])
     ->middleware(['auth', 'SuperAdminOnly'])
