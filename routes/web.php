@@ -4,27 +4,38 @@ use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\ReferenciaController;
+use App\Http\Controllers\Admin\RoleController;
+use Illuminate\Support\Facades\Auth;
 
 Route::get('/', function () {
     return view('welcome');
 });
 
 Route::get('/dashboard', function () {
-    if (Auth::user()->hasRole('SuperAdmin')) {
+    if (Auth::user()->hasRole('SuperAdmin') || Auth::user()->hasRole('Invitado')) {
         return view('dashboard_admin');
     } else {
         return view('dashboard_departamento');
     }
 })->middleware('auth')->name('dashboard');
 
+Route::middleware(['auth', 'SuperAdminOnly'])->prefix('admin')->name('admin.')->group(function () {
+    Route::get('roles',        [RoleController::class, 'index'])->name('roles.index');
+    Route::get('roles/create', [RoleController::class, 'create'])->name('roles.create');
+    Route::post('roles',       [RoleController::class, 'store'])->name('roles.store');
+});
+
 Route::middleware(['auth'])->group(function () {
     Route::get('/referencias/exportar', [ReferenciaController::class, 'export'])
         ->name('referencias.export');
 });
+
 // Para la vista de referencias generales por departamento (solo SuperAdmin)
 Route::get('/referencias/admin', [ReferenciaController::class, 'adminIndex'])
-    ->middleware(['auth', 'SuperAdminOnly'])
+    ->middleware(['auth', 'SuperAdminOrInvitado'])
     ->name('referencias.admin');
+
+
 
 
 Route::middleware('auth')->group(function () {

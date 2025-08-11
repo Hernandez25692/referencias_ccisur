@@ -13,9 +13,11 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->alias([
             'SuperAdminOnly' => \App\Http\Middleware\SuperAdminOnly::class,
-            
+            'InvitadoOnly'   => \App\Http\Middleware\InvitadoOnly::class, 
+            'SuperAdminOrInvitado' => \App\Http\Middleware\SuperAdminOrInvitado::class,
         ]);
     })
+
     ->withExceptions(function (Exceptions $exceptions): void {
         //
     })->create();
