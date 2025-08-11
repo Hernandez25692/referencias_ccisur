@@ -160,7 +160,9 @@
             <!-- Logo -->
             <a href="{{ route('dashboard') }}" class="logo">
                 <img src="{{ asset('storage/logos/logo3.png') }}" alt="Logo" class="h-10 w-10 object-contain" />
-                <span>REFSIS</span>
+                <span>
+                    <span style="color:#1e293b;">REF</span><span style="color:#FFD700;">SIS</span>
+                </span>
             </a>
             <!-- Menu Toggle (Mobile) -->
             <button class="menu-toggle" id="menuToggle" aria-label="Abrir menú">
