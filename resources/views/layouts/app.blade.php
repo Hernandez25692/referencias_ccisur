@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,201 +9,240 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         :root {
-            --primary-blue: #002c5f;
-            --secondary-gold: #b79a37;
-            --light-bg: #f8fafc;
-            --dark-blue: #0c1c3c;
-            --hover-blue: #007bff;
-            --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --primary: #1e293b;
+            --accent: #FFD700; /* Cambiado a dorado */
+            --bg: #f1f5f9;
+            --white: #fff;
+            --shadow: 0 2px 12px 0 rgba(30,41,59,0.08);
         }
-        
-        .nav-item {
+        .glass {
+            background: rgba(255,255,255,0.7);
+            backdrop-filter: blur(8px);
+            box-shadow: var(--shadow);
+        }
+        .nav-modern {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 2rem;
+            height: 72px;
+            border-radius: 1.5rem;
+            margin: 1.5rem auto 0 auto;
+            max-width: 1200px;
             position: relative;
-            padding: 0.75rem 1rem;
-            transition: all 0.3s ease;
         }
-        
-        .nav-item::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 0;
-            height: 2px;
-            background: var(--secondary-gold);
-            transition: width 0.3s ease;
+        .nav-modern .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 1.7rem;
+            font-weight: 700;
+            color: var(--primary);
+            letter-spacing: -1px;
         }
-        
-        .nav-item:hover::after {
-            width: 80%;
+        .nav-modern .logo span {
+            color: var(--accent);
         }
-        
-        .nav-item.active::after {
-            width: 80%;
-            background: var(--hover-blue);
+        .nav-modern .nav-links {
+            display: flex;
+            gap: 1.5rem;
         }
-        
-        .user-badge {
-            background: linear-gradient(135deg, rgba(183, 154, 55, 0.1) 0%, rgba(0, 44, 95, 0.1) 100%);
-            border-left: 2px solid var(--secondary-gold);
+        .nav-modern .nav-link {
+            position: relative;
+            font-size: 1rem;
+            color: var(--primary);
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            border-radius: 0.75rem;
+            transition: background 0.2s, color 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
         }
-        
-        .logout-btn {
-            transition: all 0.3s ease;
-            box-shadow: var(--card-shadow);
+        .nav-modern .nav-link.active,
+        .nav-modern .nav-link:hover {
+            background: var(--accent);
+            color: var(--white);
         }
-        
-        .logout-btn:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        .nav-modern .user-area {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
         }
-        
-        .logo-text {
-            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        .nav-modern .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--accent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--white);
+            font-size: 1.5rem;
+            font-weight: bold;
+            box-shadow: 0 2px 8px 0 rgba(255,215,0,0.15); /* Cambiado a dorado */
         }
-        
-        .role-badge {
-            background: linear-gradient(to right, var(--secondary-gold), #d4af37);
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
+        .nav-modern .user-info {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        .nav-modern .user-info .name {
+            font-size: 0.95rem;
             font-weight: 600;
+            color: var(--primary);
+        }
+        .nav-modern .user-info .role {
+            font-size: 0.8rem;
+            color: var(--accent);
+            font-weight: 500;
+            letter-spacing: 1px;
+        }
+        .nav-modern .logout-btn {
+            background: none;
+            border: none;
+            color: var(--primary);
+            font-size: 1.3rem;
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 0.5rem;
+            transition: background 0.2s;
+        }
+        .nav-modern .logout-btn:hover {
+            background: #fff8dc; /* Un dorado claro */
+            color: #ef4444;
+        }
+        /* Mobile */
+        @media (max-width: 900px) {
+            .nav-modern {
+                flex-wrap: wrap;
+                height: auto;
+                padding: 1rem;
+            }
+            .nav-modern .nav-links {
+                display: none;
+                flex-direction: column;
+                gap: 1rem;
+                position: absolute;
+                top: 72px;
+                left: 0;
+                width: 100%;
+                background: rgba(255,255,255,0.95);
+                border-radius: 0 0 1.5rem 1.5rem;
+                box-shadow: var(--shadow);
+                z-index: 20;
+            }
+            .nav-modern .nav-links.open {
+                display: flex;
+            }
+            .nav-modern .menu-toggle {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                background: none;
+                border: none;
+                font-size: 2rem;
+                color: var(--primary);
+                cursor: pointer;
+                margin-left: 1rem;
+            }
+        }
+        @media (min-width: 901px) {
+            .nav-modern .menu-toggle {
+                display: none;
+            }
         }
     </style>
 </head>
-
-<body class="bg-[var(--light-bg)] text-gray-900 font-sans antialiased">
-    <header class="bg-white shadow-sm fixed top-0 inset-x-0 z-50 border-b border-gray-100">
-        <div class="max-w-8xl mx-auto px-6">
-            <div class="flex items-center justify-between h-20">
-                <!-- Logo y Título -->
-                <div class="flex items-center space-x-4">
-                    <a href="{{ route('dashboard') }}" class="flex items-center space-x-3 group">
-                        <img src="{{ asset('storage/logos/logo3.png') }}" alt="Logo CCISur"
-                            class="h-12 w-12 object-contain transition-transform duration-300 group-hover:scale-105" />
-                        <span class="text-2xl font-bold tracking-tight logo-text">
-                            <span class="text-[var(--primary-blue)]">REF</span><span class="text-[var(--secondary-gold)]">SIS</span>
-                        </span>
+<body class="bg-[var(--bg)] text-gray-900 font-sans antialiased min-h-screen">
+    <header>
+        <nav class="nav-modern glass">
+            <!-- Logo -->
+            <a href="{{ route('dashboard') }}" class="logo">
+                <img src="{{ asset('storage/logos/logo3.png') }}" alt="Logo" class="h-10 w-10 object-contain" />
+                <span>REFSIS</span>
+            </a>
+            <!-- Menu Toggle (Mobile) -->
+            <button class="menu-toggle" id="menuToggle" aria-label="Abrir menú">
+                <i class="ph ph-list"></i>
+            </button>
+            <!-- Links -->
+            <div class="nav-links" id="navLinks">
+                @hasanyrole('SuperAdmin|Invitado')
+                    <a href="{{ route('admin.roles.index') }}" class="nav-link {{ request()->routeIs('admin.roles.*') ? 'active' : '' }}">
+                        <i class="ph ph-identification-card"></i> Roles
                     </a>
-                </div>
-
-                <!-- Navegación Principal -->
-                <nav class="hidden lg:flex items-center space-x-1">
-                    @hasanyrole('SuperAdmin|Invitado')
-                        <a href="{{ route('admin.roles.index') }}" class="nav-item flex items-center space-x-2 text-[var(--dark-blue)] hover:text-[var(--hover-blue)]">
-                            <i class="ph ph-identification-card text-[var(--secondary-gold)] text-lg"></i>
-                            <span>Roles / Departamentos</span>
-                        </a>
-                        <a href="{{ route('admin.users.index') }}" class="nav-item flex items-center space-x-2 text-[var(--dark-blue)] hover:text-[var(--hover-blue)]">
-                            <i class="ph ph-users-four text-[var(--secondary-gold)] text-lg"></i>
-                            <span>Usuarios</span>
-                        </a>
-                        <a href="{{ route('referencias.admin') }}" class="nav-item flex items-center space-x-2 text-[var(--dark-blue)] hover:text-[var(--hover-blue)]">
-                            <i class="ph ph-list-magnifying-glass text-[var(--secondary-gold)] text-lg"></i>
-                            <span>Referencias</span>
-                        </a>
-                        <a href="{{ route('dashboard') }}" class="nav-item flex items-center space-x-2 text-[var(--dark-blue)] hover:text-[var(--hover-blue)]">
-                            <i class="ph ph-gauge text-[var(--secondary-gold)] text-lg"></i>
-                            <span>Dashboard</span>
-                        </a>
-                    @endhasanyrole
-
-                    @hasanyrole('GAF|GOR|GSEA|DE')
-                        <a href="{{ route('referencias.index') }}" class="nav-item flex items-center space-x-2 text-[var(--dark-blue)] hover:text-[var(--hover-blue)]">
-                            <i class="ph ph-folder-user text-[var(--secondary-gold)] text-lg"></i>
-                            <span>Mis Referencias</span>
-                        </a>
-                        <a href="{{ route('dashboard') }}" class="nav-item flex items-center space-x-2 text-[var(--dark-blue)] hover:text-[var(--hover-blue)]">
-                            <i class="ph ph-gauge text-[var(--secondary-gold)] text-lg"></i>
-                            <span>Dashboard</span>
-                        </a>
-                    @endhasanyrole
-                </nav>
-
-                <!-- Área de Usuario -->
-                <div class="hidden lg:flex items-center space-x-4">
-                    <div class="user-badge flex items-center space-x-3 px-4 py-2 rounded-lg">
-                        <div class="relative">
-                            <i class="ph ph-user-circle text-[var(--secondary-gold)] text-2xl"></i>
-                            <span class="absolute -bottom-1 -right-1 w-3 h-3 bg-green-500 rounded-full border-2 border-white"></span>
-                        </div>
-                        <div class="flex flex-col">
-                            <span class="text-sm font-medium text-[var(--dark-blue)]">{{ Auth::user()->name }}</span>
-                            <span class="text-xs role-badge">
-                                {{ strtoupper(Auth::user()->getRoleNames()->first()) }}
-                            </span>
-                        </div>
-                    </div>
-
-                    <form method="POST" action="{{ route('logout') }}">
-                        @csrf
-                        <button type="submit" class="logout-btn flex items-center space-x-1 px-4 py-2 bg-white text-red-600 rounded-lg hover:bg-red-50 transition-all">
-                            <i class="ph ph-sign-out text-lg"></i>
-                            <span class="font-medium">Salir</span>
-                        </button>
-                    </form>
-                </div>
-
-                <!-- Menú Mobile (oculto en desktop) -->
-                <div class="lg:hidden">
-                    <button id="mobileMenuToggle" class="text-[var(--dark-blue)] p-2 rounded-lg hover:bg-gray-100">
-                        <i class="ph ph-list text-2xl"></i>
-                    </button>
-                </div>
+                    <a href="{{ route('admin.users.index') }}" class="nav-link {{ request()->routeIs('admin.users.*') ? 'active' : '' }}">
+                        <i class="ph ph-users-four"></i> Usuarios
+                    </a>
+                    <a href="{{ route('referencias.admin') }}" class="nav-link {{ request()->routeIs('referencias.admin') ? 'active' : '' }}">
+                        <i class="ph ph-list-magnifying-glass"></i> Referencias
+                    </a>
+                    <a href="{{ route('dashboard') }}" class="nav-link {{ request()->routeIs('dashboard') ? 'active' : '' }}">
+                        <i class="ph ph-gauge"></i> Dashboard
+                    </a>
+                @endhasanyrole
+                @hasanyrole('GAF|GOR|GSEA|DE')
+                    <a href="{{ route('referencias.index') }}" class="nav-link {{ request()->routeIs('referencias.index') ? 'active' : '' }}">
+                        <i class="ph ph-folder-user"></i> Mis Referencias
+                    </a>
+                    <a href="{{ route('dashboard') }}" class="nav-link {{ request()->routeIs('dashboard') ? 'active' : '' }}">
+                        <i class="ph ph-gauge"></i> Dashboard
+                    </a>
+                @endhasanyrole
             </div>
-        </div>
+            <!-- User Area -->
+            <div class="user-area">
+                <div class="user-avatar">
+                    <i class="ph ph-user"></i>
+                </div>
+                <div class="user-info">
+                    <span class="name">{{ Auth::user()->name }}</span>
+                    <span class="role">{{ strtoupper(Auth::user()->getRoleNames()->first()) }}</span>
+                </div>
+                <form method="POST" action="{{ route('logout') }}">
+                    @csrf
+                    <button type="submit" class="logout-btn" title="Salir">
+                        <i class="ph ph-sign-out"></i>
+                    </button>
+                </form>
+            </div>
+        </nav>
     </header>
-
-    <main class="max-w-8xl mx-auto px-6 pt-28 pb-16">
+    <main class="max-w-7xl mx-auto px-4 pt-12 pb-16">
         @yield('content')
     </main>
-
-    <footer class="bg-[var(--dark-blue)] py-8 mt-12 text-sm text-gray-300 w-full">
-        <div class="max-w-8xl mx-auto px-6 flex flex-col items-center justify-center gap-4 text-center">
+    <footer class="bg-[var(--primary)] py-8 mt-12 text-sm text-gray-300 w-full">
+        <div class="max-w-7xl mx-auto px-6 flex flex-col items-center justify-center gap-4 text-center">
             <div class="flex items-center justify-center gap-3">
-                <svg class="w-5 h-5 text-[var(--secondary-gold)]" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                <svg class="w-5 h-5 text-[var(--accent)]" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6l4 2m6 0a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
                 <span>
-                    &copy; {{ date('Y') }} <strong class="text-[var(--secondary-gold)]">CCISur – REFSIS</strong>. Todos los derechos reservados.
+                    &copy; {{ date('Y') }} <strong class="text-[var(--accent)]">CCISur – REFSIS</strong>. Todos los derechos reservados.
                 </span>
             </div>
             <div class="flex items-center justify-center gap-2">
-                <i class="ph ph-code text-[var(--secondary-gold)] text-base"></i>
+                <i class="ph ph-code text-[var(--accent)] text-base"></i>
                 <span>
-                    Desarrollado por <strong class="text-[var(--secondary-gold)]">José Hernandez</strong>
+                    Desarrollado por <strong class="text-[var(--accent)]">José Hernandez</strong>
                 </span>
             </div>
         </div>
     </footer>
-
     <script>
-        // Menú móvil (mantenido por si acaso, aunque el enfoque es desktop)
-        const toggleBtn = document.getElementById('mobileMenuToggle');
-        const mobileMenu = document.getElementById('mobileMenu');
-        let menuOpen = false;
-        toggleBtn?.addEventListener('click', () => {
-            menuOpen = !menuOpen;
-            if (menuOpen) {
-                mobileMenu.classList.remove('-translate-y-4', 'opacity-0', 'pointer-events-none');
-                mobileMenu.classList.add('translate-y-0', 'opacity-100', 'pointer-events-auto');
-            } else {
-                mobileMenu.classList.add('-translate-y-4', 'opacity-0', 'pointer-events-none');
-                mobileMenu.classList.remove('translate-y-0', 'opacity-100', 'pointer-events-auto');
-            }
+        // Mobile menu toggle
+        const menuToggle = document.getElementById('menuToggle');
+        const navLinks = document.getElementById('navLinks');
+        menuToggle?.addEventListener('click', () => {
+            navLinks.classList.toggle('open');
         });
-        
-        // Efecto hover mejorado para elementos de navegación
-        document.querySelectorAll('.nav-item').forEach(item => {
-            item.addEventListener('mouseenter', () => {
-                item.style.transform = 'translateY(-2px)';
-            });
-            item.addEventListener('mouseleave', () => {
-                item.style.transform = 'translateY(0)';
-            });
+        // Cierra el menú al hacer click fuera (opcional)
+        document.addEventListener('click', (e) => {
+            if (!navLinks.contains(e.target) && !menuToggle.contains(e.target)) {
+                navLinks.classList.remove('open');
+            }
         });
     </script>
 </body>
-
 </html>
