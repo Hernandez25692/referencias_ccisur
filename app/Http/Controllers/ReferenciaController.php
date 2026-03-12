@@ -193,19 +193,19 @@ class ReferenciaController extends Controller
 
             $rutaDocumento = $archivo->storeAs('documentos', $nombreArchivoFinal, 'public');
 
-            $carpetaDestino = "/mnt/referencias/REFSIS/{$referencia->departamento}/";
+            $carpetaDestino = "/mnt/referencias/REFSIS/{$referencia->departamento}";
 
-            if (!file_exists($carpetaDestino)) {
-                mkdir($carpetaDestino, 0777, true);
+            if (!is_dir($carpetaDestino)) {
+                if (!mkdir($carpetaDestino, 0775, true) && !is_dir($carpetaDestino)) {
+                    throw new \Exception("No se pudo crear la carpeta: {$carpetaDestino}");
+                }
             }
 
             $origen = storage_path("app/public/{$rutaDocumento}");
             $destino = "{$carpetaDestino}/{$nombreArchivoFinal}";
 
-            try {
-                copy($origen, $destino);
-            } catch (\Exception $e) {
-                \Log::error("Error copiando archivo actualizado: " . $e->getMessage());
+            if (!copy($origen, $destino)) {
+                \Log::error("Error copiando archivo actualizado: {$origen} -> {$destino}");
             }
 
             $cambios[] = "Documento actualizado: {$nombreArchivoFinal}";
