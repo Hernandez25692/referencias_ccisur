@@ -194,18 +194,33 @@ class ReferenciaController extends Controller
             $rutaDocumento = $archivo->storeAs('documentos', $nombreArchivoFinal, 'public');
 
             $carpetaDestino = "/mnt/referencias/REFSIS/{$referencia->departamento}";
-
-            if (!is_dir($carpetaDestino)) {
-                if (!mkdir($carpetaDestino, 0775, true) && !is_dir($carpetaDestino)) {
-                    throw new \Exception("No se pudo crear la carpeta: {$carpetaDestino}");
-                }
-            }
-
             $origen = storage_path("app/public/{$rutaDocumento}");
             $destino = "{$carpetaDestino}/{$nombreArchivoFinal}";
 
-            if (!copy($origen, $destino)) {
-                \Log::error("Error copiando archivo actualizado: {$origen} -> {$destino}");
+            try {
+
+                if (is_dir('/mnt/referencias') && is_writable('/mnt/referencias')) {
+
+                    if (!is_dir($carpetaDestino)) {
+                        @mkdir($carpetaDestino, 0775, true);
+                    }
+
+                    if (is_dir($carpetaDestino) && is_writable($carpetaDestino)) {
+
+                        if (!@copy($origen, $destino)) {
+                            \Log::warning("No se pudo copiar el archivo al NAS: {$destino}");
+                        }
+                    } else {
+
+                        \Log::warning("Carpeta destino no disponible para escritura: {$carpetaDestino}");
+                    }
+                } else {
+
+                    \Log::warning("Recurso compartido /mnt/referencias no disponible para escritura.");
+                }
+            } catch (\Throwable $e) {
+
+                \Log::error("Error copiando archivo al NAS: " . $e->getMessage());
             }
 
             $cambios[] = "Documento actualizado: {$nombreArchivoFinal}";
