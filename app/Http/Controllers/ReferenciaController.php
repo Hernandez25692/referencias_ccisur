@@ -74,7 +74,7 @@ class ReferenciaController extends Controller
             'asunto' => 'nullable|string',
             'solicitado_por' => 'nullable|string',
             'autorizado_por' => 'nullable|string',
-            'documento' => 'nullable|file|mimes:pdf,docx,doc,jpg,png|max:2048',
+            'documento' => 'nullable|file|mimes:pdf,docx,doc,jpg,png|max:102400',
         ]);
 
         $user = Auth::user();
@@ -162,7 +162,7 @@ class ReferenciaController extends Controller
             'asunto' => 'nullable|string',
             'solicitado_por' => 'nullable|string',
             'autorizado_por' => 'nullable|string',
-            'documento' => 'nullable|file|mimes:pdf,docx,doc,jpg,png|max:2048',
+            'documento' => 'nullable|file|mimes:pdf,docx,doc,jpg,png|max:102400',
         ]);
 
         $user = Auth::user();
