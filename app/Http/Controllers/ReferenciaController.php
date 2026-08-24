@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Gate;
 use App\Models\Bitacora;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\ReferenciasExport;
@@ -148,16 +149,15 @@ class ReferenciaController extends Controller
 
     public function edit(Referencia $referencia)
     {
-        // Asegura que solo el dueño o el mismo departamento pueda editar
-        if (Auth::user()->getRoleNames()->first() !== $referencia->departamento) {
-            abort(403, 'No autorizado');
-        }
+        Gate::authorize('update', $referencia);
 
         return view('referencias.edit', compact('referencia'));
     }
 
     public function update(Request $request, Referencia $referencia)
     {
+        Gate::authorize('update', $referencia);
+
         $request->validate([
             'asunto' => 'nullable|string',
             'solicitado_por' => 'nullable|string',
@@ -300,12 +300,16 @@ class ReferenciaController extends Controller
 
     public function show(Referencia $referencia)
     {
+        Gate::authorize('view', $referencia);
+
         return view('referencias.show', compact('referencia'));
     }
 
-    //solo para SuperAdmin
+    // Solo SuperAdmin e Invitado (mismos roles que acceden a referencias.admin)
     public function bitacora(Referencia $referencia)
     {
+        Gate::authorize('viewBitacora', $referencia);
+
         $referencia->load(['bitacoras.user']);
 
         return view('referencias.bitacora', compact('referencia'));
