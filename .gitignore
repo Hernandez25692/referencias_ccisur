@@ -3,6 +3,9 @@
 .env
 .env.backup
 .env.production
+*.pem
+*.key
+leeme.txt
 .phpactor.json
 .phpunit.result.cache
 /.fleet
